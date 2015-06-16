@@ -3507,6 +3507,12 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
         [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:NULL]];
         
         self.controller = controller;
+        
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+            alert.popoverPresentationController.sourceView = controller.view;
+            alert.popoverPresentationController.sourceRect = CGRectMake(controller.view.bounds.size.width * 0.50, controller.view.bounds.size.height * .50, 1.0, 1.0);
+        }
+        
         [controller presentViewController:alert animated:YES completion:NULL];
     }
     else
