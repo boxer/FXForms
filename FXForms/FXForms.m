@@ -1202,7 +1202,13 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
     else
     {
-        return [self valueDescription:self.options[index - (self.placeholder? 1: 0)]];
+        if (self.options.count > index) {
+            return [self valueDescription:self.options[index - (self.placeholder? 1: 0)]];
+        }
+        else {
+            NSAssert(NO, @"Index out of bounds for options list!");
+            return @"";
+        }
     }
 }
 
