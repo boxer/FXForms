@@ -625,17 +625,6 @@ static void FXFormPreprocessFieldDictionary(NSMutableDictionary *dictionary)
     }
 }
 
-static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
-
-    if( [[UIView class] respondsToSelector:@selector(userInterfaceLayoutDirectionForSemanticContentAttribute:)] ) {
-
-        return ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:view.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft);
-    }
-    else {
-
-        return ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft);
-    }
-}
 
 
 @interface FXFormController () <UITableViewDataSource, UITableViewDelegate>
@@ -2846,10 +2835,10 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 - (void)setUp
 {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-
-    self.textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, self.contentView.bounds.size.width, self.contentView.bounds.size.height)];  // layoutSubviews will adjust this down to fit the content
-    self.textField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
+    
+    self.textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 200, 21)];
+    self.textField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin |UIViewAutoresizingFlexibleLeftMargin;
     self.textField.font = [UIFont systemFontOfSize:self.textLabel.font.pointSize];
     self.textField.minimumFontSize = FXFormLabelMinFontSize(self.textLabel);
     self.textField.textColor = [[[UIApplication sharedApplication] keyWindow] tintColor];
@@ -2903,36 +2892,25 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-
-    CGRect textLabelFrame = self.textLabel.frame;
+    
+    CGRect labelFrame = self.textLabel.frame;
+    labelFrame.size.width = MIN(MAX([self.textLabel sizeThatFits:CGSizeZero].width, FXFormFieldMinLabelWidth), FXFormFieldMaxLabelWidth);
+    self.textLabel.frame = labelFrame;
+    
     CGRect textFieldFrame = self.textField.frame;
-
-    textLabelFrame.size.width = MIN(MAX([self.textLabel sizeThatFits:CGSizeZero].width, FXFormFieldMinLabelWidth), FXFormFieldMaxLabelWidth);
-
-    if( FXFormIsUserInterfaceLayoutRightToLeft(self) ) {
-
-        textLabelFrame.origin.x = ( self.contentView.bounds.size.width - textLabelFrame.size.width - FXFormFieldPaddingLeft);
-        textLabelFrame.origin.y = FXFormFieldPaddingTop;
-
+    textFieldFrame.origin.x = self.textLabel.frame.origin.x + MAX(FXFormFieldMinLabelWidth, self.textLabel.frame.size.width) + FXFormFieldLabelSpacing;
+    textFieldFrame.origin.y = (self.contentView.bounds.size.height - textFieldFrame.size.height) / 2;
+    textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
+    if (![self.textLabel.text length])
+    {
         textFieldFrame.origin.x = FXFormFieldPaddingLeft;
-        textFieldFrame.origin.y = FXFormFieldPaddingTop;
-
-        textFieldFrame.size.width = (self.contentView.bounds.size.width - FXFormFieldPaddingLeft - textLabelFrame.size.width - FXFormFieldLabelSpacing - FXFormFieldPaddingRight);
+        textFieldFrame.size.width = self.contentView.bounds.size.width - FXFormFieldPaddingLeft - FXFormFieldPaddingRight;
     }
-    else {
-
-        textLabelFrame.origin.x = FXFormFieldPaddingLeft;
-        textLabelFrame.origin.y = FXFormFieldPaddingTop;
-
-        textFieldFrame.origin.x = textLabelFrame.origin.x + MAX(FXFormFieldMinLabelWidth, self.textLabel.frame.size.width) + FXFormFieldLabelSpacing;
-        textFieldFrame.origin.y = FXFormFieldPaddingTop;
-
-        textFieldFrame.size.width = (self.contentView.bounds.size.width - FXFormFieldPaddingLeft - textLabelFrame.size.width - FXFormFieldLabelSpacing - FXFormFieldPaddingRight);
+    else if (self.textField.textAlignment == NSTextAlignmentRight)
+    {
+        textFieldFrame.origin.x = self.textLabel.frame.origin.x + labelFrame.size.width + FXFormFieldLabelSpacing;
+        textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
     }
-
-    textFieldFrame.size.height = self.contentView.bounds.size.height - FXFormFieldPaddingTop - FXFormFieldPaddingBottom;
-
-    self.textLabel.frame = textLabelFrame;
     self.textField.frame = textFieldFrame;
 }
 
@@ -2943,16 +2921,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
     self.textField.text = [self.field fieldDescription];
     
     self.textField.returnKeyType = UIReturnKeyDone;
-
-    if( FXFormIsUserInterfaceLayoutRightToLeft(self) ) {
-
-        self.textField.textAlignment = NSTextAlignmentLeft;
-    }
-    else {
-
-        self.textField.textAlignment = [self.field.title length]? NSTextAlignmentRight: NSTextAlignmentLeft;
-    }
-
+    self.textField.textAlignment = [self.field.title length]? NSTextAlignmentRight: NSTextAlignmentLeft;
     self.textField.secureTextEntry = NO;
     
     if ([self.field.type isEqualToString:FXFormFieldTypeText])
