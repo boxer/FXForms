@@ -2937,6 +2937,9 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
             textFieldFrame.origin.x = self.textLabel.frame.origin.x + textLabelFrame.size.width + FXFormFieldLabelSpacing;
             textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
         }
+        else {
+            textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
+        }
     }
 
     textFieldFrame.size.height = textLabelFrame.size.height = self.contentView.bounds.size.height - FXFormFieldPaddingTop - FXFormFieldPaddingBottom;
