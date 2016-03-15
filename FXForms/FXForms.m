@@ -2933,11 +2933,11 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
             textFieldFrame.origin.x = textLabelFrame.origin.x + MAX(FXFormFieldMinLabelWidth, self.textLabel.frame.size.width) + FXFormFieldLabelSpacing;
             textFieldFrame.size.width = (self.contentView.bounds.size.width - FXFormFieldPaddingLeft - textLabelFrame.size.width - FXFormFieldLabelSpacing - FXFormFieldPaddingRight);
         }
-        if (self.textField.textAlignment == NSTextAlignmentRight) {
-            textFieldFrame.origin.x = self.textLabel.frame.origin.x + textLabelFrame.size.width + FXFormFieldLabelSpacing;
+        else {
             textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
         }
-        else {
+        if (self.textField.textAlignment == NSTextAlignmentRight) {
+            textFieldFrame.origin.x = self.textLabel.frame.origin.x + textLabelFrame.size.width + FXFormFieldLabelSpacing;
             textFieldFrame.size.width = self.textField.superview.frame.size.width - textFieldFrame.origin.x - FXFormFieldPaddingRight;
         }
     }
