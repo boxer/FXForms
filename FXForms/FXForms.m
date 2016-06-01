@@ -2202,6 +2202,11 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
         
         [tableView endUpdates];
     }
+
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // treat touch events on the + icon as if the row was touched (insert new row)
+        [self tableView:tableView didSelectRowAtIndexPath:indexPath];
+    }
 }
 
 - (void)tableView:(__unused UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
