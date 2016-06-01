@@ -2587,6 +2587,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 #pragma mark -
 #pragma mark Views
 
+
 @implementation FXRestrictedTextView
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender{
     NSString *stringForSelector = NSStringFromSelector(action);
@@ -2615,7 +2616,6 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
     return [super canPerformAction:action withSender:sender];
 }
 @end
-
 
 @implementation FXFormBaseCell
 
@@ -2991,7 +2991,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 - (void)update
 {
-	self.textField.restrictCopyPaste = self.field.isRestricted;
+    self.textField.restrictCopyPaste = self.field.isRestricted;
     self.textLabel.text = self.field.title;
     self.textField.placeholder = [self.field.placeholder fieldDescription];
     self.textField.text = [self.field fieldDescription];
@@ -3205,7 +3205,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 - (void)update
 {
-	self.textView.restrictCopyPaste = self.field.isRestricted;
+    self.textView.restrictCopyPaste = self.field.isRestricted;
     self.textLabel.text = self.field.title;
     self.textView.text = [self.field fieldDescription];
     self.detailTextLabel.text = self.field.placeholder;
