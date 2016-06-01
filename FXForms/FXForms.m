@@ -1639,7 +1639,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
     [self.values removeObjectAtIndex:index];
     for (NSUInteger i = index; i < [self.values count]; i++)
     {
-        self.fields[index][FXFormFieldKey] = [@(i) description];
+        self.fields[i][FXFormFieldKey] = [@(i) description];
     }
     [self updateFormValue];
 }
