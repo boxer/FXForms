@@ -41,6 +41,7 @@
 UIKIT_EXTERN NSString *const FXFormFieldKey; //key
 UIKIT_EXTERN NSString *const FXFormFieldType; //type
 UIKIT_EXTERN NSString *const FXFormFieldClass; //class
+UIKIT_EXTERN NSString *const FXFormFieldRestricted; //restricted
 UIKIT_EXTERN NSString *const FXFormFieldCell; //cell
 UIKIT_EXTERN NSString *const FXFormFieldTitle; //title
 UIKIT_EXTERN NSString *const FXFormFieldPlaceholder; //placeholder
@@ -113,6 +114,7 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 @property (nonatomic, readonly) NSDictionary *fieldTemplate;
 @property (nonatomic, readonly) BOOL isSortable;
 @property (nonatomic, readonly) BOOL isInline;
+@property (nonatomic, readonly) BOOL isRestricted;
 @property (nonatomic, readonly) Class valueClass;
 @property (nonatomic, readonly) id viewController;
 @property (nonatomic, readonly) void (^action)(id sender);
@@ -183,6 +185,14 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 #pragma mark -
 #pragma mark Views
 
+@interface FXRestrictedTextView : UITextView
+@property (nonatomic) BOOL restrictCopyPaste;
+@end
+
+@interface FXRestrictedTextField : UITextField
+@property (nonatomic) BOOL restrictCopyPaste;
+@end
+
 
 @protocol FXFormFieldCell <NSObject>
 
@@ -212,14 +222,14 @@ UIKIT_EXTERN NSString *const FXFormFieldTypeImage; //image
 
 @interface FXFormTextFieldCell : FXFormBaseCell
 
-@property (nonatomic, readonly) UITextField *textField;
+@property (nonatomic, readonly) FXRestrictedTextField *textField;
 
 @end
 
 
 @interface FXFormTextViewCell : FXFormBaseCell
 
-@property (nonatomic, readonly) UITextView *textView;
+@property (nonatomic, readonly) FXRestrictedTextView *textView;
 
 @end
 

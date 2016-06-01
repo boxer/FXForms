@@ -58,6 +58,7 @@ NSString *const FXFormFieldHeader = @"header";
 NSString *const FXFormFieldFooter = @"footer";
 NSString *const FXFormFieldInline = @"inline";
 NSString *const FXFormFieldSortable = @"sortable";
+NSString *const FXFormFieldRestricted = @"restricted";
 NSString *const FXFormFieldViewController = @"viewController";
 
 NSString *const FXFormFieldTypeDefault = @"default";
@@ -664,6 +665,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 @property (nonatomic, readwrite) NSDictionary *fieldTemplate;
 @property (nonatomic, readwrite) BOOL isSortable;
 @property (nonatomic, readwrite) BOOL isInline;
+@property (nonatomic, readwrite) BOOL isRestricted;
 @property (nonatomic, readonly) id (^valueTransformer)(id input);
 @property (nonatomic, readonly) id (^reverseValueTransformer)(id input);
 @property (nonatomic, strong) id defaultValue;
@@ -1129,6 +1131,11 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 - (void)setInline:(BOOL)isInline
 {
     _isInline = isInline;
+}
+
+- (void)setRestricted:(BOOL)isRestricted
+{
+    _isRestricted = isRestricted;
 }
 
 - (void)setOptions:(NSArray *)options
@@ -2580,6 +2587,35 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 #pragma mark -
 #pragma mark Views
 
+@implementation FXRestrictedTextView
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender{
+    NSString *stringForSelector = NSStringFromSelector(action);
+    // If copy/paste is restricted, allow only available options.
+    if (self.restrictCopyPaste) {
+        if ( [stringForSelector isEqualToString:@"_define:"] || [stringForSelector isEqualToString:@"_share:"]) {
+            return NO;
+        }
+        return [super canPerformAction:action withSender:sender];
+    }
+    return [super canPerformAction:action withSender:sender];
+}
+@end
+
+
+@implementation FXRestrictedTextField
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender{
+    NSString *stringForSelector = NSStringFromSelector(action);
+    // If copy/paste is restricted, allow only available options.
+    if (self.restrictCopyPaste) {
+        if ( [stringForSelector isEqualToString:@"_define:"] || [stringForSelector isEqualToString:@"_share:"]) {
+            return NO;
+        }
+        return [super canPerformAction:action withSender:sender];
+    }
+    return [super canPerformAction:action withSender:sender];
+}
+@end
+
 
 @implementation FXFormBaseCell
 
@@ -2843,7 +2879,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 @interface FXFormTextFieldCell () <UITextFieldDelegate>
 
-@property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, strong) FXRestrictedTextField *textField;
 @property (nonatomic, assign, getter = isReturnKeyOverriden) BOOL returnKeyOverridden;
 
 @end
@@ -2856,7 +2892,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 
-    self.textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, self.contentView.bounds.size.width, self.contentView.bounds.size.height)];  // layoutSubviews will adjust this down to fit the content
+    self.textField = [[FXRestrictedTextField alloc] initWithFrame:CGRectMake(0, 0, self.contentView.bounds.size.width, self.contentView.bounds.size.height)];  // layoutSubviews will adjust this down to fit the content
     self.textField.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     self.textField.font = [UIFont systemFontOfSize:self.textLabel.font.pointSize];
     self.textField.minimumFontSize = FXFormLabelMinFontSize(self.textLabel);
@@ -2955,6 +2991,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 - (void)update
 {
+	self.textField.restrictCopyPaste = self.field.isRestricted;
     self.textLabel.text = self.field.title;
     self.textField.placeholder = [self.field.placeholder fieldDescription];
     self.textField.text = [self.field fieldDescription];
@@ -3087,7 +3124,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 @interface FXFormTextViewCell () <UITextViewDelegate>
 
-@property (nonatomic, strong) UITextView *textView;
+@property (nonatomic, strong) FXRestrictedTextView *textView;
 
 @end
 
@@ -3116,7 +3153,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.textLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
     
-    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 320, 21)];
+    self.textView = [[FXRestrictedTextView alloc] initWithFrame:CGRectMake(0, 0, 320, 21)];
     self.textView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
     self.textView.font = [UIFont systemFontOfSize:17];
     self.textView.textColor = [[[UIApplication sharedApplication] keyWindow] tintColor];
@@ -3168,6 +3205,7 @@ static BOOL FXFormIsUserInterfaceLayoutRightToLeft(UIView *view) {
 
 - (void)update
 {
+	self.textView.restrictCopyPaste = self.field.isRestricted;
     self.textLabel.text = self.field.title;
     self.textView.text = [self.field fieldDescription];
     self.detailTextLabel.text = self.field.placeholder;
